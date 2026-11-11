@@ -30,6 +30,7 @@ final readonly class DbalRedirectRepository implements RedirectRepository
 
     public function __construct(
         private Connection $connection,
+        private bool $allowLocalhost = false,
     ) {
     }
 
@@ -150,7 +151,7 @@ final readonly class DbalRedirectRepository implements RedirectRepository
         try {
             $rule = new RedirectRule(
                 SourcePattern::of(MatchKind::from((string) $read->text($row, 'kind')), (string) $read->text($row, 'source'), $read->text($row, 'host'), \PHP_INT_MAX),
-                Target::fromString((string) $read->text($row, 'target')),
+                Target::fromString((string) $read->text($row, 'target'), $this->allowLocalhost),
                 RedirectStatus::from((int) $read->number($row, 'status')),
                 QueryPolicy::from((string) $read->text($row, 'query_policy')),
                 $read->text($row, 'locale'),

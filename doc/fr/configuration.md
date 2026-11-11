@@ -1,4 +1,4 @@
-<!-- phil-dev source-sha256=4b568c36ba75b173c21e27d910d184638903162237fd62cccac16c86cee27e76 -->
+<!-- phil-dev source-sha256=e29fce57cd75483cabf0e8eef6f85cdd4be72ee46eccded0302bbf851f664dea -->
 # Configuration
 
 Chaque option de `phil_redirects`, avec sa valeur par défaut :
@@ -14,6 +14,9 @@ phil_redirects:
 
     # The hosts an absolute target URL may send to. None by default: no redirect leaves the site.
     allowed_hosts: []
+
+    # Whether a target, an allowed host and a referrer may be on localhost or under .localhost.
+    allow_localhost: false   # true in development and tests only
 
     # Sources written as regular expressions: off by default.
     regex:
@@ -73,6 +76,24 @@ phil_redirects:
 
 Un domaine ancien mal défini — un hôte qui n'en est pas un, un statut `410`, un schéma autre que `http` ou `https` —
 fait échouer la construction du conteneur, avec le nom du domaine dans le message.
+
+`localhost` et les noms sous `.localhost` sont refusés comme hôtes, comme `phil/url` les refuse. Un poste de
+développement et les tests les permettent, de sorte qu'une cible comme `http://localhost:8000/new` puisse être
+enregistrée, relue et suivie, `localhost` listé dans `allowed_hosts`, et un référent local noté :
+
+```yaml
+when@dev:
+    phil_redirects:
+        allow_localhost: true
+        allowed_hosts: [localhost]
+
+when@test:
+    phil_redirects:
+        allow_localhost: true
+```
+
+Une adresse IP, `http://127.0.0.1:8000/`, reste refusée. Une redirection enregistrée en développement sur `localhost`
+n'est plus lue en production : le dépôt la saute, comme toute ligne qu'il ne peut pas lire.
 
 ## Services
 

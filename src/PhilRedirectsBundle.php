@@ -91,6 +91,10 @@ final class PhilRedirectsBundle extends AbstractBundle
                     ->info('The hosts an absolute target URL may send to; none by default, so that no redirect leaves the site.')
                     ->scalarPrototype()->cannotBeEmpty()->end()
                 ->end()
+                ->booleanNode('allow_localhost')
+                    ->info('Whether a target, an allowed host and a referrer may be on localhost or under .localhost: true in development and tests only.')
+                    ->defaultFalse()
+                ->end()
                 ->arrayNode('regex')
                     ->info('Sources written as regular expressions: off by default, and only for the users of admin.regex_role.')
                     ->canBeEnabled()
@@ -186,8 +190,9 @@ final class PhilRedirectsBundle extends AbstractBundle
         $hits = $this->section($config, 'hits');
         $log = $this->section($config, 'not_found_log');
         $logEnabled = $this->bool($log, 'enabled');
+        $localhost = $this->bool($config, 'allow_localhost');
 
-        $services->set(DbalRedirectRepository::class)->args([$dbal]);
+        $services->set(DbalRedirectRepository::class)->args([$dbal, $localhost]);
         $services->alias(RedirectRepository::class, DbalRedirectRepository::class)->public();
         $services->set(DbalNotFoundLog::class)->args([$dbal]);
         $services->alias(NotFoundLogRepository::class, DbalNotFoundLog::class)->public();
@@ -210,9 +215,9 @@ final class PhilRedirectsBundle extends AbstractBundle
             ->tag('kernel.reset', ['method' => 'reset'])
             ->public();
 
-        $services->set(LocationBuilder::class)->args([service('router')->nullOnInvalid()]);
+        $services->set(LocationBuilder::class)->args([service('router')->nullOnInvalid(), $localhost]);
         $services->set(RedirectResolver::class)->args([service(RedirectTableCache::class), service(LocationBuilder::class)])->public();
-        $services->set(TargetPolicy::class)->args([$this->strings($config, 'allowed_hosts')]);
+        $services->set(TargetPolicy::class)->args([$this->strings($config, 'allowed_hosts'), $localhost]);
         $services->set(ChainInspector::class)->args([service(LocationBuilder::class), $this->bool($chains, 'allowed'), $chains['max_length']]);
         $services->set(Redirects::class)
             ->args([
@@ -223,12 +228,13 @@ final class PhilRedirectsBundle extends AbstractBundle
                 $clock,
                 $this->bool($regex, 'enabled'),
                 $regex['max_length'],
+                $localhost,
             ])
             ->public();
         $services->set(RedirectCsv::class)->args([$this->section($config, 'csv')['max_lines']]);
 
         if ($logEnabled) {
-            $this->loadLog($log, $container, $clock);
+            $this->loadLog($log, $container, $clock, $localhost);
         }
 
         $services->set(NotFoundListener::class)
@@ -260,7 +266,7 @@ final class PhilRedirectsBundle extends AbstractBundle
     /**
      * @param array<array-key, mixed> $log
      */
-    private function loadLog(array $log, ContainerConfigurator $container, ReferenceConfigurator $clock): void
+    private function loadLog(array $log, ContainerConfigurator $container, ReferenceConfigurator $clock, bool $allowLocalhost): void
     {
         $services = $container->services();
 
@@ -279,6 +285,7 @@ final class PhilRedirectsBundle extends AbstractBundle
             $this->strings($log, 'ignored_paths'),
             $log['max_path_length'],
             $log['capacity'],
+            $allowLocalhost,
         ]);
     }
 

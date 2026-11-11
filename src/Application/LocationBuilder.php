@@ -28,6 +28,7 @@ final readonly class LocationBuilder
 
     public function __construct(
         private ?UrlGeneratorInterface $urls = null,
+        private bool $allowLocalhost = false,
     ) {
     }
 
@@ -127,7 +128,7 @@ final readonly class LocationBuilder
         }
 
         try {
-            $url = Url::fromString($location);
+            $url = Url::fromString($location, allowLocalhost: $this->allowLocalhost);
         } catch (InvalidUrl) {
             return null;
         }

@@ -15,7 +15,8 @@ use Phil\Url\Url;
  * `$1` to `$9` in a URL's path and query, or in a route parameter, stand for the values the source captured; never in
  * the scheme or the host of a URL, so that no request can choose the site it is sent to. The host of an absolute URL
  * is read by phil/url, as a browser reads it: in lower case, an international host in its ASCII form; one that is an
- * IP address, written dotted or as a single number, or a single name, is refused. Written as text, a route is
+ * IP address, written dotted or as a single number, or a single name, is refused; so are `localhost` and the names
+ * under `.localhost`, unless allowed, in development and tests. Written as text, a route is
  * `route:<name>` followed by its parameters as a query string: `route:blog_post?slug=$1`.
  */
 final readonly class Target
@@ -41,7 +42,11 @@ final readonly class Target
     ) {
     }
 
-    public static function url(string $url): self
+    /**
+     * @param bool $allowLocalhost whether an absolute URL may be on `localhost` or under `.localhost`, in development
+     *                             and tests
+     */
+    public static function url(string $url, bool $allowLocalhost = false): self
     {
         if ('' === $url || \strlen($url) > self::MAX_LENGTH || 1 === preg_match('/[\x00-\x20\x7F\\\\]/', $url)) {
             throw InvalidRedirect::because('target_url', 'A target URL has between 1 and %max% characters, without spaces, control characters or "\\".', ['%max%' => (string) self::MAX_LENGTH]);
@@ -60,7 +65,7 @@ final readonly class Target
         }
 
         try {
-            $host = Url::fromString($url)->host;
+            $host = Url::fromString($url, allowLocalhost: $allowLocalhost)->host;
         } catch (InvalidUrl) {
             throw InvalidRedirect::because('host', 'The host "%host%" is not a host name.', ['%host%' => $parts[2]]);
         }
@@ -100,7 +105,7 @@ final readonly class Target
     /**
      * Reads a target as text: nothing for none, `route:` for a route, a URL otherwise.
      */
-    public static function fromString(string $target): self
+    public static function fromString(string $target, bool $allowLocalhost = false): self
     {
         $target = trim($target);
 
@@ -109,7 +114,7 @@ final readonly class Target
         }
 
         if (!str_starts_with($target, self::ROUTE_PREFIX)) {
-            return self::url($target);
+            return self::url($target, $allowLocalhost);
         }
 
         $route = substr($target, \strlen(self::ROUTE_PREFIX));

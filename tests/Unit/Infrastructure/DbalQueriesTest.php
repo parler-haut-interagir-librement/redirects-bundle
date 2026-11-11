@@ -55,6 +55,17 @@ final class DbalQueriesTest extends TestCase
         self::assertEquals(new DateTimeImmutable('2026-05-02 10:00:00'), $redirect->lastHitAt());
     }
 
+    public function testARedirectToLocalhostIsReadOnlyWhenAllowed(): void
+    {
+        $row = ['target' => 'http://localhost:8000/b'] + self::ROW;
+        $connection = self::createStub(Connection::class);
+        $connection->method('getDatabasePlatform')->willReturn(new SQLitePlatform());
+        $connection->method('fetchAssociative')->willReturn($row);
+
+        self::assertNull(new DbalRedirectRepository($connection)->find(7));
+        self::assertSame('localhost', new DbalRedirectRepository($connection, allowLocalhost: true)->find(7)?->rule()->target->host);
+    }
+
     public function testEveryRedirectIsReadInTheOrderOfCreation(): void
     {
         $connection = $this->connection();

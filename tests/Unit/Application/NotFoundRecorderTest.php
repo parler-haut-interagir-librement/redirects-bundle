@@ -60,6 +60,16 @@ final class NotFoundRecorderTest extends TestCase
         self::assertSame(NotFoundRecorder::DEFAULT_CAPACITY, $log->recorded[0][4]);
     }
 
+    public function testTheHostOfAReferrerOnLocalhostIsLoggedOnlyWhenAllowed(): void
+    {
+        $log = new InMemoryNotFoundLog();
+        new NotFoundRecorder($log, new MockClock())->record(new NotFoundHit('h.example', '/a', 'http://localhost:8000/b', 'Firefox'));
+        new NotFoundRecorder($log, new MockClock(), allowLocalhost: true)->record(new NotFoundHit('h.example', '/a', 'http://localhost:8000/b', 'Firefox'));
+        new NotFoundRecorder($log, new MockClock(), allowLocalhost: true)->record(new NotFoundHit('h.example', '/a', 'http://127.0.0.1:8000/b', 'Firefox'));
+
+        self::assertSame([null, 'localhost', null], array_column($log->recorded, 2));
+    }
+
     public function testWhatIsNeverLogged(): void
     {
         $log = new InMemoryNotFoundLog();

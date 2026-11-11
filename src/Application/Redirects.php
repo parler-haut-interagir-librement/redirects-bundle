@@ -31,7 +31,16 @@ final readonly class Redirects
         private ClockInterface $clock,
         private bool $regex = false,
         private int $regexMaxLength = SourcePattern::DEFAULT_REGEX_MAX_LENGTH,
+        private bool $allowLocalhost = false,
     ) {
+    }
+
+    /**
+     * Whether a target may be on `localhost` or under `.localhost`, in development and tests.
+     */
+    public function allowLocalhost(): bool
+    {
+        return $this->allowLocalhost;
     }
 
     public function regexAllowed(): bool
@@ -120,7 +129,7 @@ final readonly class Redirects
                     throw $draft;
                 }
 
-                $rule = $draft->rule($this->regexMaxLength);
+                $rule = $draft->rule($this->regexMaxLength, $this->allowLocalhost);
                 $known = $stored[$this->keyOf($rule)] ?? null;
 
                 if ($known instanceof Redirect && !$update) {

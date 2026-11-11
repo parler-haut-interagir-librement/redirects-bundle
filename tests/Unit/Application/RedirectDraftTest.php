@@ -46,6 +46,20 @@ final class RedirectDraftTest extends TestCase
         self::assertNull(new RedirectDraft('/a', '/b')->rule()->source->host);
     }
 
+    public function testATargetOnLocalhostIsReadOnlyWhenAllowed(): void
+    {
+        $draft = new RedirectDraft('/a', 'http://localhost:8000/b');
+
+        try {
+            $draft->rule();
+            self::fail('A target on localhost was read.');
+        } catch (InvalidRedirect $invalidRedirect) {
+            self::assertSame('host', $invalidRedirect->reason);
+        }
+
+        self::assertSame('localhost', $draft->rule(allowLocalhost: true)->target->host);
+    }
+
     public function testARegularExpressionIsReadWithTheLengthLimit(): void
     {
         self::assertSame('/a+', new RedirectDraft('/a+', '/b', kind: 'regex')->rule(3)->source->path);

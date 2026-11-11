@@ -63,7 +63,7 @@ final class PhilRedirectsBundleTest extends TestCase
     {
         $container = $this->load([]);
 
-        self::assertEquals([new Reference('doctrine.dbal.default_connection')], $container->getDefinition(DbalRedirectRepository::class)->getArguments());
+        self::assertEquals([new Reference('doctrine.dbal.default_connection'), false], $container->getDefinition(DbalRedirectRepository::class)->getArguments());
         self::assertEquals([new Reference('doctrine.dbal.default_connection')], $container->getDefinition(DbalNotFoundLog::class)->getArguments());
         self::assertSame(DbalRedirectRepository::class, (string) $container->getAlias(RedirectRepository::class));
         self::assertTrue($container->getAlias(RedirectRepository::class)->isPublic());
@@ -79,7 +79,8 @@ final class PhilRedirectsBundleTest extends TestCase
         self::assertTrue($tables->isPublic());
         self::assertTrue($container->getDefinition(RedirectResolver::class)->isPublic());
         self::assertTrue($container->getDefinition(Redirects::class)->isPublic());
-        self::assertEquals([[]], $container->getDefinition(TargetPolicy::class)->getArguments());
+        self::assertEquals([[], false], $container->getDefinition(TargetPolicy::class)->getArguments());
+        self::assertFalse($container->getDefinition(LocationBuilder::class)->getArgument(1));
         self::assertEquals([new Reference(LocationBuilder::class), false, ChainInspector::DEFAULT_MAX_LENGTH], $container->getDefinition(ChainInspector::class)->getArguments());
         self::assertEquals([RedirectCsv::DEFAULT_MAX_LINES], $container->getDefinition(RedirectCsv::class)->getArguments());
 
@@ -87,11 +88,12 @@ final class PhilRedirectsBundleTest extends TestCase
         self::assertEquals(new Reference('clock'), $redirects[4]);
         self::assertFalse($redirects[5]);
         self::assertSame(255, $redirects[6]);
+        self::assertFalse($redirects[7]);
 
         $recorder = $container->getDefinition(NotFoundRecorder::class)->getArguments();
         self::assertEquals(new TaggedIteratorArgument(PhilRedirectsBundle::FILTER_TAG), $recorder[2]);
         self::assertSame(['/_wdt', '/_profiler', '/.well-known/'], $recorder[3]);
-        self::assertSame([1024, 10000], [$recorder[4], $recorder[5]]);
+        self::assertSame([1024, 10000, false], [$recorder[4], $recorder[5], $recorder[6]]);
         self::assertEquals([[]], $container->getDefinition(DeclaredCrawlerFilter::class)->getArguments());
         self::assertTrue($container->getDefinition(DeclaredCrawlerFilter::class)->hasTag(PhilRedirectsBundle::FILTER_TAG));
         self::assertFalse($container->hasDefinition(RobotVerdictFilter::class));
@@ -131,6 +133,7 @@ final class PhilRedirectsBundleTest extends TestCase
             'connection' => 'redirects',
             'providers' => ['app.provider', PhilRedirectsBundle::STORED_PROVIDER],
             'allowed_hosts' => ['partner.example'],
+            'allow_localhost' => true,
             'regex' => ['max_length' => 100],
             'chains' => ['allowed' => true, 'max_length' => 5],
             'cache' => ['pool' => 'cache.app', 'key' => 'k', 'lifetime' => 300],
@@ -140,17 +143,18 @@ final class PhilRedirectsBundleTest extends TestCase
             'clock' => 'app.clock',
         ]);
 
-        self::assertEquals([new Reference('doctrine.dbal.redirects_connection')], $container->getDefinition(DbalRedirectRepository::class)->getArguments());
+        self::assertEquals([new Reference('doctrine.dbal.redirects_connection'), true], $container->getDefinition(DbalRedirectRepository::class)->getArguments());
         self::assertSame([['event' => 'postGenerateSchema', 'connection' => 'redirects']], $container->getDefinition(RedirectSchemaListener::class)->getTag('doctrine.event_listener'));
         self::assertEquals([[new Reference('app.provider'), new Reference(PhilRedirectsBundle::STORED_PROVIDER)], true, new Reference('cache.app'), 'k', 300], $container->getDefinition(RedirectTableCache::class)->getArguments());
-        self::assertEquals([['partner.example']], $container->getDefinition(TargetPolicy::class)->getArguments());
+        self::assertEquals([['partner.example'], true], $container->getDefinition(TargetPolicy::class)->getArguments());
+        self::assertTrue($container->getDefinition(LocationBuilder::class)->getArgument(1));
         self::assertSame([true, 5], \array_slice($container->getDefinition(ChainInspector::class)->getArguments(), 1));
-        self::assertSame([true, 100], \array_slice($container->getDefinition(Redirects::class)->getArguments(), 5));
+        self::assertSame([true, 100, true], \array_slice($container->getDefinition(Redirects::class)->getArguments(), 5));
         self::assertEquals(new Reference('app.clock'), $container->getDefinition(Redirects::class)->getArgument(4));
         self::assertEquals([7], $container->getDefinition(RedirectCsv::class)->getArguments());
         self::assertFalse($container->hasDefinition(DeclaredCrawlerFilter::class));
         self::assertTrue($container->getDefinition(RobotVerdictFilter::class)->hasTag(PhilRedirectsBundle::FILTER_TAG));
-        self::assertSame([['/x'], 200, 50], \array_slice($container->getDefinition(NotFoundRecorder::class)->getArguments(), 3));
+        self::assertSame([['/x'], 200, 50, true], \array_slice($container->getDefinition(NotFoundRecorder::class)->getArguments(), 3));
         self::assertSame([5, 'X-Verdict'], \array_slice($container->getDefinition(NotFoundListener::class)->getArguments(), 4, 2));
         self::assertSame(30, $container->getDefinition(PurgeNotFoundCommand::class)->getArgument(2));
     }
@@ -174,7 +178,7 @@ final class PhilRedirectsBundleTest extends TestCase
         $container = $this->load([]);
 
         self::assertEquals([new Reference('doctrine.dbal.default_connection')], $container->getDefinition(RedirectSchemaListener::class)->getArguments());
-        self::assertEquals([new Reference('router', ContainerInterface::NULL_ON_INVALID_REFERENCE)], $container->getDefinition(LocationBuilder::class)->getArguments());
+        self::assertEquals([new Reference('router', ContainerInterface::NULL_ON_INVALID_REFERENCE), false], $container->getDefinition(LocationBuilder::class)->getArguments());
         self::assertEquals([new Reference(RedirectTableCache::class), new Reference(LocationBuilder::class)], $container->getDefinition(RedirectResolver::class)->getArguments());
     }
 

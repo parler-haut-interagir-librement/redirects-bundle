@@ -56,6 +56,14 @@ final class LocationBuilderTest extends TestCase
         self::assertSame('https://partner.example:8443/', $builder->build(new RedirectMatch(new RedirectRule(SourcePattern::exact('/a'), Target::url('https://Partner.example.:8443')), [])));
     }
 
+    public function testALocationOnLocalhostIsSentOnlyWhenAllowed(): void
+    {
+        $rule = new RedirectRule(SourcePattern::wildcard('/**'), Target::url('http://localhost:8000/$1', allowLocalhost: true));
+
+        self::assertNull(new LocationBuilder()->build(new RedirectMatch($rule, ['a'])));
+        self::assertSame('http://localhost:8000/a', new LocationBuilder(allowLocalhost: true)->build(new RedirectMatch($rule, ['a'])));
+    }
+
     public function testAnAbsoluteLocationIsWrittenInItsCanonicalForm(): void
     {
         $rule = new RedirectRule(SourcePattern::wildcard('/**'), Target::url('https://Bücher.example/livres/$1'));

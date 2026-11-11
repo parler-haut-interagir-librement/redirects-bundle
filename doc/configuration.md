@@ -14,6 +14,9 @@ phil_redirects:
     # The hosts an absolute target URL may send to. None by default: no redirect leaves the site.
     allowed_hosts: []
 
+    # Whether a target, an allowed host and a referrer may be on localhost or under .localhost.
+    allow_localhost: false   # true in development and tests only
+
     # Sources written as regular expressions: off by default.
     regex:
         enabled: false
@@ -72,6 +75,24 @@ phil_redirects:
 
 A bad old domain — a host that is not one, a status of `410`, a scheme other than `http` or `https` — fails the
 container build, with the domain's name in the message.
+
+`localhost` and the names under `.localhost` are refused as hosts, as `phil/url` refuses them. A development machine
+and the tests allow them, so that a target such as `http://localhost:8000/new` can be saved, read back and followed,
+`localhost` listed in `allowed_hosts`, and a local referrer logged:
+
+```yaml
+when@dev:
+    phil_redirects:
+        allow_localhost: true
+        allowed_hosts: [localhost]
+
+when@test:
+    phil_redirects:
+        allow_localhost: true
+```
+
+An IP address, `http://127.0.0.1:8000/`, stays refused. A redirect saved in development on `localhost` is no longer
+read in production: the repository skips it, as any row it cannot read.
 
 ## Services
 

@@ -46,7 +46,7 @@ final readonly class RedirectDraft
     /**
      * @throws InvalidRedirect
      */
-    public function rule(int $regexMaxLength = SourcePattern::DEFAULT_REGEX_MAX_LENGTH): RedirectRule
+    public function rule(int $regexMaxLength = SourcePattern::DEFAULT_REGEX_MAX_LENGTH, bool $allowLocalhost = false): RedirectRule
     {
         $kind = MatchKind::tryFrom(trim($this->kind)) ?? throw InvalidRedirect::because('kind', 'The kind "%kind%" is not exact, prefix, wildcard or regex.', ['%kind%' => $this->kind]);
         $digits = trim($this->status);
@@ -59,7 +59,7 @@ final readonly class RedirectDraft
 
         return new RedirectRule(
             SourcePattern::of($kind, trim($this->source), trim($this->host), $regexMaxLength),
-            Target::fromString($this->target),
+            Target::fromString($this->target, $allowLocalhost),
             $status,
             $query,
             trim($this->locale),

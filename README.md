@@ -76,7 +76,7 @@ $redirects->create(new RedirectRule(SourcePattern::wildcard('/blog/*/**'), Targe
 
 ## Requirements
 
-PHP 8.5 or later, Symfony 8.2 or later, Doctrine DBAL 4.5 or later and `phil/url` 0.1.2, which requires the intl,
+PHP 8.5 or later, Symfony 8.2 or later, Doctrine DBAL 4.5 or later and `phil/url` 0.1.3, which requires the intl,
 mbstring and URI extensions. The console, Twig, the security, the translator, a PSR-6 pool, EasyAdmin and
 `phil/bot-detection-bundle` are optional.
 

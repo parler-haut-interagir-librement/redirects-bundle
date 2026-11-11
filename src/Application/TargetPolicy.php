@@ -21,8 +21,10 @@ final readonly class TargetPolicy
 
     /**
      * @param list<string> $allowedHosts
+     * @param bool         $allowLocalhost whether `localhost` and the names under `.localhost` may be listed, in
+     *                                     development and tests
      */
-    public function __construct(array $allowedHosts = [])
+    public function __construct(array $allowedHosts = [], private bool $allowLocalhost = false)
     {
         $this->hosts = array_map($this->hostOf(...), $allowedHosts);
     }
@@ -34,7 +36,7 @@ final readonly class TargetPolicy
     private function hostOf(string $host): ?string
     {
         try {
-            $url = Url::fromString('https://'.$host);
+            $url = Url::fromString('https://'.$host, allowLocalhost: $this->allowLocalhost);
         } catch (InvalidUrl) {
             return null;
         }

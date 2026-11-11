@@ -14,6 +14,13 @@ Updates should follow the [Keep a CHANGELOG](https://keepachangelog.com/) princi
 - The location an absolute target gives is checked by `phil/url`, no longer by `parse_url()`, and sent in its
   canonical form: an international host in its ASCII form, the escaped dot segments resolved.
 
+### Added
+
+- The option `allow_localhost`, `false` by default: `true`, in development and tests, lets a target, an entry of
+  `allowed_hosts` and a referrer be on `localhost` or under `.localhost`; an IP address stays refused. `Target::url()`,
+  `Target::fromString()` and `RedirectDraft::rule()` take it as `allowLocalhost`, `LocationBuilder`, `TargetPolicy`,
+  `NotFoundRecorder`, `Redirects` (with `allowLocalhost()`) and `DbalRedirectRepository` as their last argument.
+
 ### Changed
 
 - An absolute target may have an international host, `https://bücher.example/`; `allowed_hosts` reads its entries
@@ -22,7 +29,7 @@ Updates should follow the [Keep a CHANGELOG](https://keepachangelog.com/) princi
 - The 404 log reads the host of a referrer by `phil/url`, whatever its scheme: `https://evil.example\@partner.example/`
   is logged under evil.example, where `parse_url()` read partner.example; a referrer with a user name or an IP
   address is logged without a host, an international one under its ASCII form.
-- The package requires `phil/url` 0.1.2.
+- The package requires `phil/url` 0.1.3.
 
 ## 0.1.0-alpha - 2026-11-11
 

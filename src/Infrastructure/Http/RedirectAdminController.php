@@ -81,7 +81,7 @@ final readonly class RedirectAdminController
 
         try {
             $this->assertRegexAllowed($draft);
-            $this->redirects->create($draft->rule($this->redirects->regexMaxLength()), $draft->enabled);
+            $this->redirects->create($draft->rule($this->redirects->regexMaxLength(), $this->redirects->allowLocalhost()), $draft->enabled);
         } catch (InvalidRedirect|RedirectRefused $refused) {
             return $this->form($draft, null, $from, $refused);
         }
@@ -107,7 +107,7 @@ final readonly class RedirectAdminController
 
         try {
             $this->assertRegexAllowed($draft, MatchKind::Regex === $redirect->rule()->source->kind);
-            $this->redirects->update($id, $draft->rule($this->redirects->regexMaxLength()), $draft->enabled);
+            $this->redirects->update($id, $draft->rule($this->redirects->regexMaxLength(), $this->redirects->allowLocalhost()), $draft->enabled);
         } catch (InvalidRedirect|RedirectRefused $refused) {
             return $this->form($draft, $id, null, $refused);
         }

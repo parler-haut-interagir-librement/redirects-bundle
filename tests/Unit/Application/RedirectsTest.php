@@ -194,6 +194,7 @@ final class RedirectsTest extends TestCase
     public function testTheRegexSettings(): void
     {
         self::assertFalse(new Redirects($this->repository, new RedirectTableCache([]), new ChainInspector(new LocationBuilder()), new TargetPolicy(), $this->clock)->regexAllowed());
+        self::assertFalse(new Redirects($this->repository, new RedirectTableCache([]), new ChainInspector(new LocationBuilder()), new TargetPolicy(), $this->clock)->allowLocalhost());
         self::assertFalse($this->redirects()->regexAllowed());
         self::assertTrue($this->redirects(regex: true)->regexAllowed());
         self::assertSame(SourcePattern::DEFAULT_REGEX_MAX_LENGTH, $this->redirects()->regexMaxLength());
@@ -348,18 +349,35 @@ final class RedirectsTest extends TestCase
         self::assertFalse(new TargetPolicy(['partner.example/evil'])->allows(Target::url('https://partner.example/')));
         self::assertFalse(new TargetPolicy(['partner.example:8443'])->allows(Target::url('https://partner.example/')));
         self::assertFalse(new TargetPolicy(['user@partner.example'])->allows(Target::url('https://partner.example/')));
+        // localhost is a host of the list only when allowed, as in development.
+        self::assertFalse(new TargetPolicy(['localhost'])->allows(Target::url('http://localhost/', allowLocalhost: true)));
+        self::assertTrue(new TargetPolicy(['localhost', 'app.localhost'], allowLocalhost: true)->allows(Target::url('http://localhost/', allowLocalhost: true)));
+        self::assertTrue(new TargetPolicy(['app.localhost'], allowLocalhost: true)->allows(Target::url('http://app.localhost/', allowLocalhost: true)));
     }
 
-    private function redirects(bool $regex = false, int $maxLength = SourcePattern::DEFAULT_REGEX_MAX_LENGTH): Redirects
+    public function testAnImportedTargetOnLocalhostIsTakenOnlyWhenAllowed(): void
+    {
+        $line = [1 => new RedirectDraft('/dev', 'http://localhost:8000/b')];
+
+        self::assertSame([1], array_keys($this->redirects()->import($line)->rejected));
+        self::assertFalse($this->redirects()->allowLocalhost());
+
+        $allowed = $this->redirects(allowLocalhost: true);
+        self::assertTrue($allowed->allowLocalhost());
+        self::assertSame([], $allowed->import($line)->rejected);
+    }
+
+    private function redirects(bool $regex = false, int $maxLength = SourcePattern::DEFAULT_REGEX_MAX_LENGTH, bool $allowLocalhost = false): Redirects
     {
         return new Redirects(
             $this->repository,
             new RedirectTableCache([new StoredRedirects($this->repository), $this->provider], $regex, $this->pool, 'table'),
-            new ChainInspector(new LocationBuilder()),
-            new TargetPolicy(['partner.example']),
+            new ChainInspector(new LocationBuilder(allowLocalhost: $allowLocalhost)),
+            new TargetPolicy(['partner.example', 'localhost'], $allowLocalhost),
             $this->clock,
             $regex,
             $maxLength,
+            $allowLocalhost,
         );
     }
 

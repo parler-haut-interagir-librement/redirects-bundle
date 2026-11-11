@@ -99,6 +99,32 @@ final class TargetTest extends TestCase
         }
     }
 
+    public function testLocalhostIsATargetOnlyWhenAllowed(): void
+    {
+        foreach (['http://localhost:8000/a' => 'localhost', 'https://app.localhost/$1' => 'app.localhost'] as $url => $host) {
+            foreach ([static fn (): Target => Target::url($url), static fn (): Target => Target::fromString($url)] as $read) {
+                try {
+                    $read();
+                    self::fail($url.' was taken.');
+                } catch (InvalidRedirect $invalidRedirect) {
+                    self::assertSame('host', $invalidRedirect->reason);
+                }
+            }
+
+            self::assertSame($host, Target::url($url, allowLocalhost: true)->host);
+            self::assertSame($host, Target::fromString($url, allowLocalhost: true)->host);
+        }
+
+        foreach (['http://127.0.0.1/a', 'http://localhostx/a', 'http://intranet/a'] as $url) {
+            try {
+                Target::url($url, allowLocalhost: true);
+                self::fail($url.' was taken.');
+            } catch (InvalidRedirect $invalidRedirect) {
+                self::assertSame('host', $invalidRedirect->reason);
+            }
+        }
+    }
+
     public function testTheLongestUrlIsAccepted(): void
     {
         $url = '/'.str_repeat('a', Target::MAX_LENGTH - 1);

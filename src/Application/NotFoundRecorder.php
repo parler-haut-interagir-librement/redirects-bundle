@@ -32,6 +32,7 @@ final readonly class NotFoundRecorder
         private array $ignoredPaths = [],
         private int $maxPathLength = self::DEFAULT_MAX_PATH_LENGTH,
         private int $capacity = self::DEFAULT_CAPACITY,
+        private bool $allowLocalhost = false,
     ) {
     }
 
@@ -74,7 +75,7 @@ final readonly class NotFoundRecorder
         }
 
         try {
-            return Url::fromString('https://'.substr($referrer, \strlen($scheme[0])))->host;
+            return Url::fromString('https://'.substr($referrer, \strlen($scheme[0])), allowLocalhost: $this->allowLocalhost)->host;
         } catch (InvalidUrl) {
             return null;
         }
