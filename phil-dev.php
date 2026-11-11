@@ -29,4 +29,6 @@ return [
         'budget' => 60,
         'corpus' => 'tests/Fuzz/corpus',
     ],
+    // The package is released from its own repository: its CHANGELOG uses every section.
+    'docs' => ['public' => true],
 ];
