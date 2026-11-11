@@ -33,6 +33,8 @@ final class TargetTest extends TestCase
         self::assertTrue($target->isExternal());
         self::assertSame('http://partner.example', Target::url('http://partner.example')->url);
         self::assertSame('partner.example', Target::url('http://partner.example?x=1')->host);
+        self::assertSame('xn--bcher-kva.example', Target::url('https://Bücher.example./$1')->host);
+        self::assertSame('https://Bücher.example./$1', Target::url('https://Bücher.example./$1')->url);
     }
 
     /**
@@ -52,6 +54,12 @@ final class TargetTest extends TestCase
         yield 'credentials' => ['https://user@evil.example', 'target_url'];
         yield 'placeholder in host' => ['https://$1.example/a', 'host'];
         yield 'empty host' => ['https://./a', 'host'];
+        // The pattern took any dotted digits for a host name: a browser reads both as the loopback address.
+        yield 'an IP address' => ['https://127.0.0.1/a', 'host'];
+        yield 'an IP address in decimal' => ['https://2130706433/a', 'host'];
+        yield 'a host of one name' => ['https://intranet/a', 'host'];
+        yield 'a port out of range' => ['https://partner.example:99999/', 'host'];
+        yield 'port 0' => ['https://partner.example:0/a', 'target_url'];
     }
 
     #[DataProvider('invalidUrls')]
@@ -81,6 +89,13 @@ final class TargetTest extends TestCase
             self::fail('Expected a refusal');
         } catch (InvalidRedirect $invalidRedirect) {
             self::assertSame(['%route%' => 'a b'], $invalidRedirect->parameters);
+        }
+
+        try {
+            Target::url('https://intranet/a');
+            self::fail('Expected a refusal');
+        } catch (InvalidRedirect $invalidRedirect) {
+            self::assertSame(['%host%' => 'intranet'], $invalidRedirect->parameters);
         }
     }
 

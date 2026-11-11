@@ -6,7 +6,7 @@ A request not found that no redirect answered is logged in `phil_redirect_not_fo
 |---|---|
 | The host and the path, percent-encoded | The address of the visitor |
 | How many times, first and last seen | The user agent |
-| The host of the last page that linked to it | The full referrer, its path and query |
+| The host of the last page that linked to it, read by phil/url, whatever its scheme — none for an IP address or a user name | The full referrer, its path and query |
 
 The row is updated in a single statement; the first request creates it. Beyond `capacity` entries, a new path is not
 logged, while the paths already there keep counting.

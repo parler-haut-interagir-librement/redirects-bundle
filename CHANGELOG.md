@@ -4,6 +4,26 @@ All notable changes to `phil/redirects-bundle` will be documented in this file.
 
 Updates should follow the [Keep a CHANGELOG](https://keepachangelog.com/) principles.
 
+## 0.1.1-alpha - 2026-11-11
+
+### Security
+
+- The host of a target is read by `phil/url`, as a browser reads it: a target whose host is an IP address, written
+  dotted (`https://127.0.0.1/`) or as a single number (`https://2130706433/`, the loopback address to a browser), or
+  a single name (`https://intranet/`), or with a port out of range, is refused as a `host`; port 0 as a `target_url`.
+- The location an absolute target gives is checked by `phil/url`, no longer by `parse_url()`, and sent in its
+  canonical form: an international host in its ASCII form, the escaped dot segments resolved.
+
+### Changed
+
+- An absolute target may have an international host, `https://bücher.example/`; `allowed_hosts` reads its entries
+  by `phil/url`, so that `Bücher.example.` allows it, and an entry that is no host name alone — with a path, a port
+  or a user name — allows nothing.
+- The 404 log reads the host of a referrer by `phil/url`, whatever its scheme: `https://evil.example\@partner.example/`
+  is logged under evil.example, where `parse_url()` read partner.example; a referrer with a user name or an IP
+  address is logged without a host, an international one under its ASCII form.
+- The package requires `phil/url` 0.1.2.
+
 ## 0.1.0-alpha - 2026-11-11
 
 ### Added

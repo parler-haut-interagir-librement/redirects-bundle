@@ -25,6 +25,13 @@ a scheme or a host, a captured value is put back percent-encoded, and the locati
 sent — a path stays a path of the site (never `//host` nor a backslash), an absolute URL keeps the host of its target.
 A location that fails the check is not sent.
 
+Every host is read by phil/url, as a browser reads it: the host of a target, the host of the location, the hosts of
+`allowed_hosts`, the host of a referrer. A host is compared in lower case, an international one in its ASCII form —
+`Bücher.example.` in `allowed_hosts` allows `https://xn--bcher-kva.example/` —, and an absolute location is sent in
+its canonical form, which a header can carry. A target whose host is an IP address, written dotted or as a single
+number (`https://2130706433/` is `127.0.0.1` to a browser), or a single name, is refused; so is port 0. An entry of
+`allowed_hosts` that is not a host name alone — with a path, a port or a user name — allows nothing.
+
 ## Bounded inputs
 
 | Input | Bound |

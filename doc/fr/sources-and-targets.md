@@ -1,4 +1,4 @@
-<!-- phil-dev source-sha256=9fdd86e00809a597d1043aacef2071d2294148687026374cb73f6b899dab3062 -->
+<!-- phil-dev source-sha256=595d779e868b38cf4d7715ad447970f7e0c3f5da1f34acd879958fe7d7637485 -->
 # Sources et cibles
 
 Une redirection est un `RedirectRule` : une source, une cible, un statut, une politique de chaîne de requête et,
@@ -43,7 +43,7 @@ aux limites de PCRE : un motif qui y échoue ne correspond à rien, et la requê
 | Cible | S'écrit | Remarques |
 |---|---|---|
 | Un chemin du site | `/new/page?x=1` | Commence par un seul `/` : `//host` est refusé. |
-| Une URL absolue | `https://shop.example.com/` | Permise seulement si son hôte figure dans `allowed_hosts`. |
+| Une URL absolue | `https://shop.example.com/` | Permise seulement si son hôte, lu par phil/url, figure dans `allowed_hosts` ; une adresse IP ou un seul nom est refusé. |
 | Une route | `route:blog_post?slug=$1` | Générée avec ses paramètres ; une route impossible à générer laisse la requête introuvable. |
 | Aucune | (vide) | Pour une `410 Gone` seulement. |
 

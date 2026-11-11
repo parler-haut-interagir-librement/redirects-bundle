@@ -1,4 +1,4 @@
-<!-- phil-dev source-sha256=c2ffb1e1324c2965e7552c1347bc00141c80da571e4e0c6344b761429fde904c -->
+<!-- phil-dev source-sha256=678f0f5f3a57711275941db1c4e55cfa7796c8a45d14983c3d932ebc7552fae8 -->
 # Le journal des 404
 
 Une requête introuvable à laquelle aucune redirection n'a répondu est journalisée dans `phil_redirect_not_found`, une
@@ -8,7 +8,7 @@ ligne par hôte et par chemin :
 |---|---|
 | L'hôte et le chemin, encodés en pourcentage | L'adresse du visiteur |
 | Combien de fois, première et dernière apparition | L'agent utilisateur |
-| L'hôte de la dernière page qui y menait | Le référent complet, son chemin et sa requête |
+| L'hôte de la dernière page qui y menait, lu par phil/url, quel que soit son schéma ; aucun pour une adresse IP ou un nom d'utilisateur | Le référent complet, son chemin et sa requête |
 
 La ligne est mise à jour en une seule instruction ; la première requête la crée. Au-delà de `capacity` entrées, un
 nouveau chemin n'est pas journalisé, tandis que les chemins déjà présents continuent de compter.

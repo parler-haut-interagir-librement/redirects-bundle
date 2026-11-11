@@ -6,8 +6,9 @@ namespace Phil\RedirectsBundle\Application;
 
 use Phil\RedirectsBundle\Application\Contract\NotFoundFilter;
 use Phil\RedirectsBundle\Domain\Contract\NotFoundLogRepository;
-use Phil\RedirectsBundle\Domain\Exception\InvalidRedirect;
 use Phil\RedirectsBundle\Domain\ValueObject\SourcePattern;
+use Phil\Url\Exception\InvalidUrl;
+use Phil\Url\Url;
 use Psr\Clock\ClockInterface;
 
 /**
@@ -62,17 +63,19 @@ final readonly class NotFoundRecorder
         return true;
     }
 
+    /**
+     * The host of the referrer, read by phil/url as a browser reads it, whatever its scheme — `android-app://` too —:
+     * none for a referrer with a user name, an IP address, or no host.
+     */
     private function hostOf(?string $referrer): ?string
     {
-        $host = null === $referrer ? null : parse_url($referrer, \PHP_URL_HOST);
-
-        if (!\is_string($host)) {
+        if (null === $referrer || 1 !== preg_match('#^[a-z][a-z0-9+.-]*://#i', $referrer, $scheme)) {
             return null;
         }
 
         try {
-            return SourcePattern::normalizedHost($host);
-        } catch (InvalidRedirect) {
+            return Url::fromString('https://'.substr($referrer, \strlen($scheme[0])))->host;
+        } catch (InvalidUrl) {
             return null;
         }
     }

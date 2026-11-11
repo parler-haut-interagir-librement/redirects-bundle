@@ -38,6 +38,16 @@ final class NotFoundRecorderTest extends TestCase
         yield 'invalid host' => ['https://exa_mple/', null];
         yield 'android app' => ['android-app://com.example.app/', 'com.example.app'];
         yield 'malformed' => ['http:///x', null];
+        yield 'upper case and a final dot' => ['https://Partner.Example./a', 'partner.example'];
+        yield 'an international host' => ['https://bücher.example/a', 'xn--bcher-kva.example'];
+        yield 'credentials' => ['https://user:secret@evil.example/', null];
+        yield 'an IP address' => ['https://127.0.0.1/', null];
+        // parse_url() read partner.example; a browser reads the backslash as a slash, and the host as evil.example.
+        yield 'a backslash' => ['https://evil.example\\@partner.example/', 'evil.example'];
+        yield 'no scheme' => ['//partner.example/', null];
+        yield 'a scheme in capitals' => ['HTTPS://partner.example/', 'partner.example'];
+        // A scheme is the start of the referrer: after other characters, it makes no address.
+        yield 'a scheme after other characters' => [str_repeat('0', 18).'x.partner.example://a/', null];
     }
 
     #[DataProvider('referrers')]

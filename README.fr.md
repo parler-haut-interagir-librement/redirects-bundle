@@ -1,4 +1,4 @@
-<!-- phil-dev source-sha256=a11013a81a90a8c6578f76cf6b1338acca3ab60679525694ca690225142627d4 -->
+<!-- phil-dev source-sha256=4211653d63958d292cebab6648209d49f7c877dc27b23ad5bc0489603185b453 -->
 # phil/redirects-bundle
 
 **Des redirections pour Symfony, gérées depuis une administration et résolues seulement quand rien d'autre n'a
@@ -80,8 +80,9 @@ $redirects->create(new RedirectRule(SourcePattern::wildcard('/blog/*/**'), Targe
 
 ## Prérequis
 
-PHP 8.5 ou plus récent, Symfony 8.2 ou plus récent et Doctrine DBAL 4.5 ou plus récent. La console, Twig, la
-sécurité, le traducteur, un pool PSR-6, EasyAdmin et `phil/bot-detection-bundle` sont facultatifs.
+PHP 8.5 ou plus récent, Symfony 8.2 ou plus récent, Doctrine DBAL 4.5 ou plus récent et `phil/url` 0.1.2, qui requiert
+les extensions intl, mbstring et URI. La console, Twig, la sécurité, le traducteur, un pool PSR-6, EasyAdmin et
+`phil/bot-detection-bundle` sont facultatifs.
 
 ## Contribuer
 

@@ -40,7 +40,7 @@ nothing, and the request stays not found.
 | Target | Writes | Notes |
 |---|---|---|
 | A path of the site | `/new/page?x=1` | Starts with one `/`: `//host` is refused. |
-| An absolute URL | `https://shop.example.com/` | Allowed only when its host is in `allowed_hosts`. |
+| An absolute URL | `https://shop.example.com/` | Allowed only when its host, read by phil/url, is in `allowed_hosts`; an IP address or a single name is refused. |
 | A route | `route:blog_post?slug=$1` | Generated with its parameters; a route that cannot be generated leaves the request not found. |
 | None | (empty) | For a `410 Gone` only. |
 

@@ -340,6 +340,14 @@ final class RedirectsTest extends TestCase
         self::assertTrue($policy->allows(Target::url('https://partner.example/')));
         self::assertFalse($policy->allows(Target::url('https://evil.example/')));
         self::assertFalse(new TargetPolicy()->allows(Target::url('https://partner.example/')));
+        // An international host is allowed by its letters or by its ASCII form, as phil/url reads it.
+        $international = new TargetPolicy(['Bücher.Example.']);
+        self::assertTrue($international->allows(Target::url('https://bücher.example/')));
+        self::assertTrue($international->allows(Target::url('https://xn--bcher-kva.example/')));
+        // What is not a host name allows nothing: neither the host before a path or a port, nor another.
+        self::assertFalse(new TargetPolicy(['partner.example/evil'])->allows(Target::url('https://partner.example/')));
+        self::assertFalse(new TargetPolicy(['partner.example:8443'])->allows(Target::url('https://partner.example/')));
+        self::assertFalse(new TargetPolicy(['user@partner.example'])->allows(Target::url('https://partner.example/')));
     }
 
     private function redirects(bool $regex = false, int $maxLength = SourcePattern::DEFAULT_REGEX_MAX_LENGTH): Redirects

@@ -53,12 +53,17 @@ final class LocationBuilderTest extends TestCase
 
         self::assertSame('https://partner.example/a', $builder->build(new RedirectMatch($rule, ['a'])));
         self::assertSame('https://partner.example/@evil.example', $builder->build(new RedirectMatch($rule, ['@evil.example'])));
-        self::assertSame('https://Partner.example.:8443', $builder->build(new RedirectMatch(new RedirectRule(SourcePattern::exact('/a'), Target::url('https://Partner.example.:8443')), [])));
+        self::assertSame('https://partner.example:8443/', $builder->build(new RedirectMatch(new RedirectRule(SourcePattern::exact('/a'), Target::url('https://Partner.example.:8443')), [])));
     }
 
-    public function testAnAbsoluteUrlThatDoesNotParseIsRefused(): void
+    public function testAnAbsoluteLocationIsWrittenInItsCanonicalForm(): void
     {
-        self::assertNull(new LocationBuilder()->build(new RedirectMatch(new RedirectRule(SourcePattern::exact('/a'), Target::url('https://partner.example:99999/')))));
+        $rule = new RedirectRule(SourcePattern::wildcard('/**'), Target::url('https://Bücher.example/livres/$1'));
+        $builder = new LocationBuilder();
+
+        // A header is ASCII: the international host is written in its ASCII form, the escaped dot segments resolved.
+        self::assertSame('https://xn--bcher-kva.example/livres/th%C3%A9', $builder->build(new RedirectMatch($rule, ['thé'])));
+        self::assertSame('https://xn--bcher-kva.example/a', $builder->build(new RedirectMatch($rule, ['%2e%2e/a'])));
     }
 
     public function testAPrefixAppendsTheRestToThePath(): void

@@ -25,6 +25,7 @@
         "ext-mbstring": "*",
         "doctrine/dbal": "^4.5",
         "doctrine/orm": "^3.7",
+        "phil/url": "^0.1.2@dev",
         "psr/cache": "^3.0",
         "psr/clock": "^1.0",
         "psr/log": "^3.0",

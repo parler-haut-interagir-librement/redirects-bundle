@@ -6,6 +6,8 @@ namespace Phil\RedirectsBundle\Application;
 
 use Phil\RedirectsBundle\Domain\Enum\MatchKind;
 use Phil\RedirectsBundle\Domain\Enum\QueryPolicy;
+use Phil\Url\Exception\InvalidUrl;
+use Phil\Url\Url;
 use Symfony\Component\Routing\Exception\ExceptionInterface as RoutingException;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
@@ -15,8 +17,8 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
  * says so.
  *
  * A captured value is put back percent-encoded, so that it cannot add a scheme, a host or a line to the location; the
- * location is then checked once more: a path stays a path of the site, and an absolute URL keeps the host of its
- * target. A location that fails, or a route that cannot be generated, gives none, and the request stays not found.
+ * location is then checked once more: a path stays a path of the site, and an absolute URL, read by phil/url as a
+ * browser reads it, keeps the host of its target and is sent in its canonical form — an international host in ASCII. A location that fails, or a route that cannot be generated, gives none, and the request stays not found.
  */
 final readonly class LocationBuilder
 {
@@ -55,7 +57,7 @@ final readonly class LocationBuilder
             $location = $this->appendQuery($location, $query);
         }
 
-        return $this->isSafe($location, $target->host) ? $location : null;
+        return $this->checked($location, $target->host);
     }
 
     /**
@@ -110,16 +112,26 @@ final readonly class LocationBuilder
         return $head.(str_contains($head, '?') ? '&' : '?').$query.$tail;
     }
 
-    private function isSafe(string $location, ?string $host): bool
+    /**
+     * The location as it is sent: a path of the site as it is, an absolute URL in its canonical form, read by phil/url
+     * as a browser reads it, when its host is still the target's; none otherwise.
+     */
+    private function checked(string $location, ?string $host): ?string
     {
         if (1 === preg_match('/[\x00-\x20\x7F\\\\]/', $location)) {
-            return false;
+            return null;
         }
 
         if (str_starts_with($location, '/')) {
-            return !str_starts_with($location, '//');
+            return str_starts_with($location, '//') ? null : $location;
         }
 
-        return null !== $host && strtolower(rtrim((string) parse_url($location, \PHP_URL_HOST), '.')) === $host;
+        try {
+            $url = Url::fromString($location);
+        } catch (InvalidUrl) {
+            return null;
+        }
+
+        return $url->host === $host ? $url->toString() : null;
     }
 }

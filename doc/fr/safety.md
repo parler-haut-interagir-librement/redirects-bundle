@@ -1,4 +1,4 @@
-<!-- phil-dev source-sha256=474d6ccd9b387cc0cc75b066df332a731d38be614e4d27f4d229aa906bf5d0df -->
+<!-- phil-dev source-sha256=43a261be04ad6ee3defd2c3d9d4780e860174510c8f342b3955c1ceff62078b8 -->
 # Sécurité
 
 ## Boucles et chaînes
@@ -26,6 +26,14 @@ substituables sont refusés dans un schéma ou un hôte, une valeur capturée es
 destination est vérifiée une fois de plus avant son envoi. Un chemin reste un chemin du site (jamais `//host` ni une
 barre oblique inverse), une URL absolue garde l'hôte de sa cible. Une destination qui échoue à la vérification n'est
 pas envoyée.
+
+Chaque hôte est lu par phil/url, comme un navigateur le lit : l'hôte d'une cible, celui de la destination, ceux de
+`allowed_hosts`, celui d'un référent. Un hôte est comparé en minuscules, un hôte international sous sa forme ASCII
+(`Bücher.example.` dans `allowed_hosts` permet `https://xn--bcher-kva.example/`), et une destination absolue est
+envoyée sous sa forme canonique, qu'un en-tête peut porter. Une cible dont l'hôte est une adresse IP, écrite avec des
+points ou en un seul nombre (`https://2130706433/` est `127.0.0.1` pour un navigateur), ou un seul nom, est refusée ;
+tout comme le port 0. Une entrée de `allowed_hosts` qui n'est pas un nom d'hôte seul (avec un chemin, un port ou un
+nom d'utilisateur) ne permet rien.
 
 ## Entrées bornées
 

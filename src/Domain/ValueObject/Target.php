@@ -5,13 +5,17 @@ declare(strict_types=1);
 namespace Phil\RedirectsBundle\Domain\ValueObject;
 
 use Phil\RedirectsBundle\Domain\Exception\InvalidRedirect;
+use Phil\Url\Exception\InvalidUrl;
+use Phil\Url\Url;
 
 /**
  * Where a redirect sends the request: a URL — a path of the site, or an absolute `http` or `https` URL —, a route of
  * the application with its parameters, or nowhere, for a `410 Gone`.
  *
  * `$1` to `$9` in a URL's path and query, or in a route parameter, stand for the values the source captured; never in
- * the scheme or the host of a URL, so that no request can choose the site it is sent to. Written as text, a route is
+ * the scheme or the host of a URL, so that no request can choose the site it is sent to. The host of an absolute URL
+ * is read by phil/url, as a browser reads it: in lower case, an international host in its ASCII form; one that is an
+ * IP address, written dotted or as a single number, or a single name, is refused. Written as text, a route is
  * `route:<name>` followed by its parameters as a query string: `route:blog_post?slug=$1`.
  */
 final readonly class Target
@@ -24,7 +28,7 @@ final readonly class Target
 
     private const string PARAMETER = '/^[A-Za-z_][A-Za-z0-9_]{0,63}$/D';
 
-    private const string ABSOLUTE = '#^(https?)://([^/?\#@:]+)(?::(\d{1,5}))?([/?\#].*)?$#i';
+    private const string ABSOLUTE = '#^(https?)://([^/?\#@:]+)(?::([1-9]\d{0,4}))?([/?\#].*)?$#i';
 
     /**
      * @param array<string, string> $parameters
@@ -55,7 +59,13 @@ final readonly class Target
             throw InvalidRedirect::because('target_url', 'A target URL has between 1 and %max% characters, without spaces, control characters or "\\".', ['%max%' => (string) self::MAX_LENGTH]);
         }
 
-        return new self($url, host: SourcePattern::hostName($parts[2]));
+        try {
+            $host = Url::fromString($url)->host;
+        } catch (InvalidUrl) {
+            throw InvalidRedirect::because('host', 'The host "%host%" is not a host name.', ['%host%' => $parts[2]]);
+        }
+
+        return new self($url, host: $host);
     }
 
     /**
