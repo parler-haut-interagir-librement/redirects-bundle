@@ -1,6 +1,6 @@
 {
     "name": "phil/redirects-bundle",
-    "description": "Redirects managed from an administration for Symfony: exact, prefix and wildcard sources resolved only when nothing else answered, old domains mapped to a new host, loops and chains refused when a redirect is saved, external targets only to allowed hosts, a log of the paths not found without any visitor data, CSV import and export, and providers for the redirects of other packages",
+    "description": "Redirects managed in an admin for Symfony: exact, prefix and wildcard sources resolved only when nothing else answered, old domains mapped to a new host, loops and chains refused on save, external targets limited to allowed hosts, a log of paths not found with no visitor data, CSV import and export, and redirect providers for other packages",
     "license": "MIT",
     "type": "symfony-bundle",
     "keywords": [
