@@ -1,0 +1,51 @@
+{% extends layout %}
+
+{% block title %}{{ 'title.not_found'|trans({}, 'phil_redirects') }}{% endblock %}
+
+{% block content %}
+    <h1>{{ 'title.not_found'|trans({}, 'phil_redirects') }}</h1>
+    {{ include('@PhilRedirects/admin/_nav.html.twig') }}
+
+    {% if done %}<p role="status">{{ ('done.not_found_' ~ done)|trans({}, 'phil_redirects') }}</p>{% endif %}
+
+    <form method="get" role="search">
+        <label for="phil-redirects-q">{{ 'action.search'|trans({}, 'phil_redirects') }}</label>
+        <input type="search" id="phil-redirects-q" name="q" value="{{ search }}" maxlength="200">
+        <button type="submit">{{ 'action.search'|trans({}, 'phil_redirects') }}</button>
+    </form>
+
+    <table>
+        <thead>
+        <tr>
+            <th scope="col">{{ 'field.path'|trans({}, 'phil_redirects') }}</th>
+            <th scope="col">{{ 'field.hits'|trans({}, 'phil_redirects') }}</th>
+            <th scope="col">{{ 'field.first_seen_at'|trans({}, 'phil_redirects') }}</th>
+            <th scope="col">{{ 'field.last_seen_at'|trans({}, 'phil_redirects') }}</th>
+            <th scope="col">{{ 'field.referrer_host'|trans({}, 'phil_redirects') }}</th>
+            <th scope="col">{{ 'field.actions'|trans({}, 'phil_redirects') }}</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for entry in entries %}
+            <tr>
+                <th scope="row"><small>{{ entry.host }}</small><br><code>{{ entry.path }}</code></th>
+                <td>{{ entry.hits }}</td>
+                <td>{{ entry.firstSeenAt|date('Y-m-d H:i', 'UTC') }}</td>
+                <td>{{ entry.lastSeenAt|date('Y-m-d H:i', 'UTC') }}</td>
+                <td>{{ entry.referrerHost }}</td>
+                <td>
+                    <a href="{{ path('phil_redirects_admin_create', {from: entry.id}) }}">{{ 'action.redirect_this'|trans({}, 'phil_redirects') }}</a>
+                    <form method="post" action="{{ path('phil_redirects_admin_not_found_delete', {id: entry.id}) }}">
+                        <input type="hidden" name="_token" value="{{ csrf_token }}">
+                        <button type="submit">{{ 'action.delete'|trans({}, 'phil_redirects') }}</button>
+                    </form>
+                </td>
+            </tr>
+        {% else %}
+            <tr><td colspan="6">{{ 'empty.not_found'|trans({}, 'phil_redirects') }}</td></tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    {{ include('@PhilRedirects/admin/_pager.html.twig', {route: 'phil_redirects_admin_not_found'}) }}
+{% endblock %}

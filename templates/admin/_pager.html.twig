@@ -1,0 +1,8 @@
+{% set pages = (total / page_size)|round(0, 'ceil') %}
+{% if pages > 1 %}
+    <nav aria-label="{{ 'pager.label'|trans({}, 'phil_redirects') }}">
+        {% if page > 1 %}<a href="{{ path(route, {page: page - 1, q: search}) }}" rel="prev">{{ 'pager.previous'|trans({}, 'phil_redirects') }}</a>{% endif %}
+        <span>{{ 'pager.position'|trans({'%page%': page, '%pages%': pages}, 'phil_redirects') }}</span>
+        {% if page < pages %}<a href="{{ path(route, {page: page + 1, q: search}) }}" rel="next">{{ 'pager.next'|trans({}, 'phil_redirects') }}</a>{% endif %}
+    </nav>
+{% endif %}

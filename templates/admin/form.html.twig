@@ -1,0 +1,66 @@
+{% extends layout %}
+
+{% set heading = id is null ? 'title.new' : 'title.edit' %}
+
+{% block title %}{{ heading|trans({}, 'phil_redirects') }}{% endblock %}
+
+{% block content %}
+    <h1>{{ heading|trans({}, 'phil_redirects') }}</h1>
+    {{ include('@PhilRedirects/admin/_nav.html.twig') }}
+
+    {% if from %}<p>{{ 'form.from_not_found'|trans({'%path%': from.path, '%hits%': from.hits}, 'phil_redirects') }}</p>{% endif %}
+    {{ include('@PhilRedirects/admin/_error.html.twig') }}
+
+    <form method="post">
+        <input type="hidden" name="_token" value="{{ csrf_token }}">
+
+        <p>
+            <label for="phil-redirects-source">{{ 'field.source'|trans({}, 'phil_redirects') }}</label>
+            <input id="phil-redirects-source" name="source" value="{{ draft.source }}" required maxlength="2048">
+        </p>
+        <p>
+            <label for="phil-redirects-kind">{{ 'field.kind'|trans({}, 'phil_redirects') }}</label>
+            <select id="phil-redirects-kind" name="kind">
+                {% for kind in kinds %}
+                    <option value="{{ kind }}"{% if kind == draft.kind %} selected{% endif %}>{{ ('kind.' ~ kind)|trans({}, 'phil_redirects') }}</option>
+                {% endfor %}
+            </select>
+            <small>{{ 'help.kind'|trans({}, 'phil_redirects') }}</small>
+        </p>
+        <p>
+            <label for="phil-redirects-host">{{ 'field.host'|trans({}, 'phil_redirects') }}</label>
+            <input id="phil-redirects-host" name="host" value="{{ draft.host }}" maxlength="253">
+            <small>{{ 'help.host'|trans({}, 'phil_redirects') }}</small>
+        </p>
+        <p>
+            <label for="phil-redirects-target">{{ 'field.target'|trans({}, 'phil_redirects') }}</label>
+            <input id="phil-redirects-target" name="target" value="{{ draft.target }}" maxlength="2560">
+            <small>{{ 'help.target'|trans({}, 'phil_redirects') }}</small>
+        </p>
+        <p>
+            <label for="phil-redirects-status">{{ 'field.status'|trans({}, 'phil_redirects') }}</label>
+            <select id="phil-redirects-status" name="status">
+                {% for status in statuses %}
+                    <option value="{{ status }}"{% if status ~ '' == draft.status %} selected{% endif %}>{{ ('status.' ~ status)|trans({}, 'phil_redirects') }}</option>
+                {% endfor %}
+            </select>
+        </p>
+        <p>
+            <label for="phil-redirects-query">{{ 'field.query'|trans({}, 'phil_redirects') }}</label>
+            <select id="phil-redirects-query" name="query">
+                {% for query in queries %}
+                    <option value="{{ query }}"{% if query == draft.query %} selected{% endif %}>{{ ('query.' ~ query)|trans({}, 'phil_redirects') }}</option>
+                {% endfor %}
+            </select>
+        </p>
+        <p>
+            <label for="phil-redirects-locale">{{ 'field.locale'|trans({}, 'phil_redirects') }}</label>
+            <input id="phil-redirects-locale" name="locale" value="{{ draft.locale }}" maxlength="35">
+        </p>
+        <p>
+            <label><input type="checkbox" name="enabled" value="1"{% if draft.enabled %} checked{% endif %}> {{ 'field.enabled'|trans({}, 'phil_redirects') }}</label>
+        </p>
+
+        <button type="submit">{{ 'action.save'|trans({}, 'phil_redirects') }}</button>
+    </form>
+{% endblock %}

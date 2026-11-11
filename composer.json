@@ -1,0 +1,82 @@
+{
+    "name": "phil/redirects-bundle",
+    "description": "Redirects managed from an administration for Symfony: exact, prefix and wildcard sources resolved only when nothing else answered, old domains mapped to a new host, loops and chains refused when a redirect is saved, external targets only to allowed hosts, a log of the paths not found without any visitor data, CSV import and export, and providers for the redirects of other packages",
+    "license": "MIT",
+    "type": "symfony-bundle",
+    "keywords": [
+        "301",
+        "404",
+        "redirect",
+        "seo",
+        "symfony-bundle"
+    ],
+    "authors": [
+        {
+            "name": "Philippe Gamache",
+            "email": "philippe@ph-il.ca",
+            "homepage": "https://github.com/ph-il",
+            "role": "Developer"
+        }
+    ],
+    "homepage": "https://ph-il.ca",
+    "require": {
+        "php": ">=8.5",
+        "ext-ctype": "*",
+        "ext-mbstring": "*",
+        "doctrine/dbal": "^4.5",
+        "doctrine/orm": "^3.7",
+        "psr/cache": "^3.0",
+        "psr/clock": "^1.0",
+        "psr/log": "^3.0",
+        "symfony/config": "^8.2",
+        "symfony/dependency-injection": "^8.2",
+        "symfony/http-foundation": "^8.2",
+        "symfony/http-kernel": "^8.2",
+        "symfony/routing": "^8.2"
+    },
+    "require-dev": {
+        "doctrine/doctrine-bundle": "^3.3",
+        "easycorp/easyadmin-bundle": "^5.8",
+        "phil/bot-detection-bundle": "^0.1@dev",
+        "phpunit/phpunit": "^13.4",
+        "symfony/cache": "^8.2",
+        "symfony/clock": "^8.2",
+        "symfony/console": "^8.2",
+        "symfony/framework-bundle": "^8.2",
+        "symfony/security-core": "^8.2",
+        "symfony/security-csrf": "^8.2",
+        "symfony/service-contracts": "^3.6",
+        "symfony/translation": "^8.2",
+        "symfony/translation-contracts": "^3.6",
+        "symfony/twig-bridge": "^8.2",
+        "symfony/twig-bundle": "^8.2",
+        "twig/twig": "^3.21"
+    },
+    "suggest": {
+        "easycorp/easyadmin-bundle": "For the links of the administration in an EasyAdmin back office",
+        "phil/bot-detection-bundle": "For the robot verdict that keeps a robot's 404 out of the log",
+        "symfony/cache": "For a PSR-6 pool that keeps the table of redirects between requests",
+        "symfony/console": "For phil:redirects:import, export, check and purge-404",
+        "symfony/security-core": "For the role that guards the administration",
+        "symfony/security-csrf": "For the CSRF token of the administration's forms",
+        "symfony/translation": "For the administration in English and French",
+        "twig/twig": "For the administration's pages"
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "autoload": {
+        "psr-4": {
+            "Phil\\RedirectsBundle\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Phil\\RedirectsBundle\\Tests\\": "tests/"
+        }
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-main": "0.1.x-dev"
+        }
+    }
+}

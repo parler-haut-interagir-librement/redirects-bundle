@@ -1,0 +1,8 @@
+<nav aria-label="{{ 'nav.label'|trans({}, 'phil_redirects') }}">
+    <ul>
+        <li><a href="{{ path('phil_redirects_admin_list') }}">{{ 'menu.redirects'|trans({}, 'phil_redirects') }}</a></li>
+        <li><a href="{{ path('phil_redirects_admin_not_found') }}">{{ 'menu.not_found'|trans({}, 'phil_redirects') }}</a></li>
+        <li><a href="{{ path('phil_redirects_admin_import') }}">{{ 'menu.import'|trans({}, 'phil_redirects') }}</a></li>
+        <li><a href="{{ path('phil_redirects_admin_export') }}">{{ 'menu.export'|trans({}, 'phil_redirects') }}</a></li>
+    </ul>
+</nav>

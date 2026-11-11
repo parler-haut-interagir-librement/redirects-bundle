@@ -1,0 +1,64 @@
+{% extends layout %}
+
+{% block title %}{{ 'title.redirects'|trans({}, 'phil_redirects') }}{% endblock %}
+
+{% block content %}
+    <h1>{{ 'title.redirects'|trans({}, 'phil_redirects') }}</h1>
+    {{ include('@PhilRedirects/admin/_nav.html.twig') }}
+
+    {% if done %}<p role="status">{{ ('done.' ~ done)|trans({}, 'phil_redirects') }}</p>{% endif %}
+
+    <p><a href="{{ path('phil_redirects_admin_create') }}">{{ 'action.new'|trans({}, 'phil_redirects') }}</a></p>
+
+    <form method="get" role="search">
+        <label for="phil-redirects-q">{{ 'action.search'|trans({}, 'phil_redirects') }}</label>
+        <input type="search" id="phil-redirects-q" name="q" value="{{ search }}" maxlength="200">
+        <button type="submit">{{ 'action.search'|trans({}, 'phil_redirects') }}</button>
+    </form>
+
+    <table>
+        <thead>
+        <tr>
+            <th scope="col">{{ 'field.source'|trans({}, 'phil_redirects') }}</th>
+            <th scope="col">{{ 'field.target'|trans({}, 'phil_redirects') }}</th>
+            <th scope="col">{{ 'field.status'|trans({}, 'phil_redirects') }}</th>
+            <th scope="col">{{ 'field.hits'|trans({}, 'phil_redirects') }}</th>
+            <th scope="col">{{ 'field.last_hit_at'|trans({}, 'phil_redirects') }}</th>
+            <th scope="col">{{ 'field.actions'|trans({}, 'phil_redirects') }}</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for redirect in redirects %}
+            {% set rule = redirect.rule %}
+            <tr>
+                <th scope="row">
+                    {% if rule.source.host %}<small>{{ rule.source.host }}</small><br>{% endif %}
+                    <code>{{ rule.source.path }}</code>
+                    <small>{{ ('kind.' ~ rule.source.kind.value)|trans({}, 'phil_redirects') }}{% if rule.locale %} · {{ rule.locale }}{% endif %}</small>
+                    {% if not redirect.enabled %}<br><strong>{{ 'state.disabled'|trans({}, 'phil_redirects') }}</strong>{% endif %}
+                </th>
+                <td><code>{{ rule.target.toString }}</code></td>
+                <td>{{ rule.status.value }}</td>
+                <td>{{ redirect.hits }}</td>
+                <td>{% if redirect.lastHitAt %}{{ redirect.lastHitAt|date('Y-m-d H:i', 'UTC') }}{% endif %}</td>
+                <td>
+                    <a href="{{ path('phil_redirects_admin_edit', {id: redirect.id}) }}">{{ 'action.edit'|trans({}, 'phil_redirects') }}</a>
+                    <form method="post" action="{{ path('phil_redirects_admin_toggle', {id: redirect.id}) }}">
+                        <input type="hidden" name="_token" value="{{ csrf_token }}">
+                        <input type="hidden" name="enabled" value="{{ redirect.enabled ? '0' : '1' }}">
+                        <button type="submit">{{ (redirect.enabled ? 'action.disable' : 'action.enable')|trans({}, 'phil_redirects') }}</button>
+                    </form>
+                    <form method="post" action="{{ path('phil_redirects_admin_delete', {id: redirect.id}) }}">
+                        <input type="hidden" name="_token" value="{{ csrf_token }}">
+                        <button type="submit">{{ 'action.delete'|trans({}, 'phil_redirects') }}</button>
+                    </form>
+                </td>
+            </tr>
+        {% else %}
+            <tr><td colspan="6">{{ 'empty.redirects'|trans({}, 'phil_redirects') }}</td></tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    {{ include('@PhilRedirects/admin/_pager.html.twig', {route: 'phil_redirects_admin_list'}) }}
+{% endblock %}
