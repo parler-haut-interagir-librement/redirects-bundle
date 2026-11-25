@@ -1,6 +1,6 @@
 {
     "name": "phil/redirects-bundle",
-    "description": "Redirects managed in an admin for Symfony: exact, prefix and wildcard sources resolved only when nothing else answered, old domains mapped to a new host, loops and chains refused on save, external targets limited to allowed hosts, a log of paths not found with no visitor data, CSV import and export, and redirect providers for other packages",
+    "description": "Keep old links working after a site moves: redirects managed from an admin in Symfony, checked for loops, tried only when no page answered, with CSV import.",
     "license": "MIT",
     "type": "symfony-bundle",
     "keywords": [
@@ -23,8 +23,8 @@
         "php": ">=8.5",
         "ext-ctype": "*",
         "ext-mbstring": "*",
-        "doctrine/dbal": "^4.5",
-        "doctrine/orm": "^3.7",
+        "doctrine/dbal": "^4.6",
+        "doctrine/orm": "^3.8",
         "phil/url": "^0.1.3@dev",
         "psr/cache": "^3.0",
         "psr/clock": "^1.0",
@@ -36,8 +36,8 @@
         "symfony/routing": "^8.2"
     },
     "require-dev": {
-        "doctrine/doctrine-bundle": "^3.3",
-        "easycorp/easyadmin-bundle": "^5.8",
+        "doctrine/doctrine-bundle": "^3.4",
+        "easycorp/easyadmin-bundle": "^5.10.4",
         "phil/bot-detection-bundle": "^0.1@dev",
         "phpunit/phpunit": "^13.4",
         "symfony/cache": "^8.2",
@@ -46,12 +46,15 @@
         "symfony/framework-bundle": "^8.2",
         "symfony/security-core": "^8.2",
         "symfony/security-csrf": "^8.2",
-        "symfony/service-contracts": "^3.6",
+        "symfony/service-contracts": "^3.8",
         "symfony/translation": "^8.2",
-        "symfony/translation-contracts": "^3.6",
+        "symfony/translation-contracts": "^3.8",
         "symfony/twig-bridge": "^8.2",
         "symfony/twig-bundle": "^8.2",
-        "twig/twig": "^3.21"
+        "twig/twig": "^3.31.1"
+    },
+    "conflict": {
+        "easycorp/easyadmin-bundle": "<5.10.4"
     },
     "suggest": {
         "easycorp/easyadmin-bundle": "For the links of the administration in an EasyAdmin back office",

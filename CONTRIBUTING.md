@@ -4,6 +4,13 @@ This package is one of the open packages of [Parler Haut Interagir Librement](ht
 (PHIL). Its code is developed in the PHIL monorepo, with the other `phil/*` packages, and its own repository is a
 read-only copy split from it: **open issues and pull requests on the monorepo**, not on the split repository.
 
+## Principles
+
+Every change follows the [twelve principles of PHIL](https://github.com/parler-haut-interagir-librement/phil/blob/main/CONTRIBUTING.md#principles):
+secure by default; open, all of it; Symfony-native; bilingual, every language; private by design; fast, measured,
+worker-safe; accessible by default; a real need; little to configure; works alone, better together; predictable and
+extensible; proven quality. The contribution guide of the monorepo gives the rules behind each one.
+
 ## Reporting a bug
 
 - Check first that the bug is not already reported.

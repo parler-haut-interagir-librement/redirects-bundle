@@ -6,9 +6,9 @@ namespace Phil\RedirectsBundle\Infrastructure\Doctrine;
 
 use DateTimeImmutable;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\DBAL\Types\BooleanType;
 use Doctrine\DBAL\Types\ConversionException;
-use Doctrine\DBAL\Types\Type;
-use Doctrine\DBAL\Types\Types;
+use Doctrine\DBAL\Types\DateTimeImmutableType;
 
 /**
  * The values of a row as a driver returns them — a number may come as a string of digits, a boolean as `0` or `1` —,
@@ -51,7 +51,7 @@ final readonly class RowReader
     public function moment(array $row, string $column): ?DateTimeImmutable
     {
         try {
-            $value = Type::getType(Types::DATETIME_IMMUTABLE)->convertToPHPValue($row[$column] ?? null, $this->platform);
+            $value = new DateTimeImmutableType()->convertToPHPValue($row[$column] ?? null, $this->platform);
         } catch (ConversionException) {
             return null;
         }
@@ -64,6 +64,6 @@ final readonly class RowReader
      */
     public function flag(array $row, string $column): bool
     {
-        return true === Type::getType(Types::BOOLEAN)->convertToPHPValue($row[$column] ?? null, $this->platform);
+        return true === new BooleanType()->convertToPHPValue($row[$column] ?? null, $this->platform);
     }
 }
